@@ -5,28 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Presensi SMPN 4 MONTA</title>
     
-    <!-- Meta untuk Progressive Web App (Logo Muncul saat di-download) -->
-   <!-- PWA Meta -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Presensi SMPN4">
-<meta name="theme-color" content="#000000">
+    <!-- Meta untuk Progressive Web App -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Presensi SMPN4">
+    <meta name="theme-color" content="#4f46e5">
 
-<!-- Favicon -->
-<link rel="icon" href="favicon.ico">
+    <!-- Favicon & Icons (Menggunakan path relatif sesuai struktur folder Anda) -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
 
-<!-- Icon untuk PWA -->
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <!-- Manifest File -->
+    <link rel="manifest" href="manifest.json">
 
-<!-- Apple -->
-<link rel="apple-touch-icon" href="icon-512.png">
-
-<!-- Manifest -->
-<link rel="manifest" href="manifest.json">
+    <!-- Stylesheets -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f2f5; min-height: 100vh; margin: 0; }
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
@@ -42,25 +42,17 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<!-- Favicon (tab browser) -->
-<link rel="icon" href="favicon.ico">
-
-<!-- Icon PWA -->
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-
-<!-- Apple (iPhone) -->
-<link rel="apple-touch-icon" href="icon-512.png">
+<body>
 
     <!-- LOGIN SECTION -->
     <div id="auth-section" class="fixed inset-0 flex items-center justify-center bg-slate-100 z-[500] px-4">
         <div class="glass-card p-8 md:p-12 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center fade-in">
             <div class="mb-8">
-                <!-- INTEGRASI LOGO BARU -->
+                <!-- LOGO MENGGUNAKAN FILE LOKAL -->
                 <div class="w-24 h-24 bg-white rounded-3xl mx-auto flex items-center justify-center shadow-xl mb-4 border border-slate-100 overflow-hidden p-2">
-                    <img src="https://wildanproject123.github.io/absensi/logo.png" alt="Logo SMPN 4 MONTA" class="w-full h-full object-contain" onerror="this.innerHTML='<div class=\'bg-indigo-600 w-full h-full flex items-center justify-center text-white font-bold\'>SMP</div>'">
+                    <img src="logo.png" alt="Logo SMPN 4 MONTA" class="w-full h-full object-contain" onerror="this.src='icon-512.png'">
                 </div>
-                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">SMP NEGERI 4 MONTA</h1>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">SMP Negeri 4 Monta</h1>
                 <p class="text-slate-500 mt-2 font-medium text-sm">Sistem Presensi Kehadiran Guru</p>
             </div>
             <div class="space-y-4 text-left">
@@ -79,14 +71,14 @@
     </div>
 
     <!-- MAIN APP SECTION -->
-    <div id="app-section" class="hidden max-w-7xl mx-auto">
+    <div id="app-section" class="hidden p-4 md:p-8 max-w-7xl mx-auto">
         <div class="flex flex-col lg:flex-row gap-6 min-h-[90vh]">
             
             <!-- Sidebar (Admin) -->
             <aside id="admin-sidebar" class="hidden lg:flex flex-col w-72 admin-sidebar rounded-[2.5rem] p-8 text-white shadow-2xl">
                 <div class="mb-10 text-center">
-                    <img src="https://wildanproject123.github.io/absensi/logo.png" alt="Small Logo" class="w-12 h-12 mx-auto mb-3">
-                    <h2 class="text-lg font-black tracking-tighter leading-none">SMPN 4 MONTA</h2>
+                    <img src="logo.png" alt="Logo" class="w-12 h-12 mx-auto mb-3" onerror="this.src='icon-192.png'">
+                    <h2 class="text-lg font-black tracking-tighter leading-none uppercase">SMPN 4 MONTA</h2>
                     <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] mt-2 block">Panel Administrasi</span>
                 </div>
                 <nav class="space-y-2 flex-1">
@@ -121,7 +113,7 @@
                     </div>
                 </header>
 
-                <!-- SECTION: MONITORING -->
+                <!-- MONITORING SECTION -->
                 <div id="section-monitor" class="hidden space-y-6 fade-in">
                     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div class="glass-card p-6 rounded-3xl bg-emerald-50 border-emerald-100">
@@ -166,7 +158,7 @@
                     </div>
                 </div>
 
-                <!-- SECTION: DASHBOARD GURU -->
+                <!-- GURU SECTION -->
                 <div id="section-guru" class="hidden space-y-6 fade-in pb-10">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div class="glass-card p-8 md:p-10 rounded-[3rem] shadow-xl">
@@ -194,7 +186,7 @@
                                     <textarea name="catatan" id="form-catatan" placeholder="Opsional (Wajib jika Izin/Sakit)..." class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none h-24 font-medium transition-all resize-none text-slate-700"></textarea>
                                 </div>
                                 <button type="submit" id="btn-absen" class="w-full btn-primary text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3">
-                                    <span id="btn-text">Kirim Kehadiran</span>
+                                    <span>Kirim Kehadiran</span>
                                 </button>
                             </form>
                         </div>
@@ -203,15 +195,11 @@
                             <div id="guru-history" class="space-y-3 overflow-y-auto max-h-[400px] flex-1">
                                 <p class="text-slate-400 text-sm italic py-10 text-center">Belum ada absen.</p>
                             </div>
-                            <button onclick="handleLogout()" class="mt-6 text-rose-500 font-bold text-sm hover:underline flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                                Keluar Akun
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- SECTION: MANAGE GURU -->
+                <!-- MANAGE SECTION -->
                 <div id="section-manage" class="hidden max-w-md mx-auto glass-card p-10 rounded-[3rem] shadow-xl fade-in">
                     <h3 class="text-xl font-black text-slate-800 mb-8 text-center uppercase tracking-widest">Registrasi Guru Baru</h3>
                     <div class="space-y-4">
@@ -221,15 +209,14 @@
                     </div>
                 </div>
 
-                <!-- SECTION: ARCHIVE SHEETS -->
-                <div id="section-archive" class="hidden glass-card rounded-[2.5rem] overflow-hidden h-[650px] flex flex-col shadow-2xl border-0 fade-in">
+                <!-- ARCHIVE SECTION -->
+                <div id="section-archive" class="hidden glass-card rounded-[2.5rem] overflow-hidden h-[600px] flex flex-col shadow-2xl border-0 fade-in">
                     <div class="p-5 bg-white border-b flex justify-between items-center px-8">
-                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Google Sheets Database</span>
-                        <a href="#" id="sheets-link" target="_blank" class="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-tighter">Open Editor</a>
+                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Database Sheets</span>
+                        <a href="#" id="sheets-link" target="_blank" class="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-tighter">Buka Editor</a>
                     </div>
                     <iframe id="sheets-iframe" class="flex-1 w-full" src="about:blank"></iframe>
                 </div>
-
             </main>
         </div>
     </div>
@@ -242,6 +229,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyDzq3aqYZKNOv9JYDDt82xaOKARm-_uCEI",
             authDomain: "absen-guru-29853.firebaseapp.com",
@@ -265,6 +253,7 @@
         };
         let monitorData = [];
 
+        // Auth state listener
         onAuthStateChanged(auth, (user) => {
             if (session.user && user) showApp();
         });
@@ -274,12 +263,16 @@
         };
         initAuth();
 
+        // Clock logic
         setInterval(() => {
             const now = new Date();
-            if(document.getElementById('live-clock')) document.getElementById('live-clock').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
-            if(document.getElementById('live-date')) document.getElementById('live-date').innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            const clock = document.getElementById('live-clock');
+            const date = document.getElementById('live-date');
+            if(clock) clock.innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+            if(date) date.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
         }, 1000);
 
+        // Login handler
         window.handleLogin = async () => {
             const user = document.getElementById('login-user').value.trim();
             const pass = document.getElementById('login-pass').value.trim();
@@ -436,9 +429,9 @@
                     body: JSON.stringify({ action: "saveData", timestamp: fullStamp, user: session.user, role: session.role, detail: `Status: ${status} | Catatan: ${catatan}` })
                 });
 
-                showToast("Berhasil!", "bg-indigo-600");
+                showToast("Berhasil terkirim!", "bg-indigo-600");
                 e.target.reset();
-            } catch (err) { showToast("Gagal!", "bg-rose-500"); }
+            } catch (err) { showToast("Gagal mengirim!", "bg-rose-500"); }
             finally { btn.disabled = false; }
         };
 
