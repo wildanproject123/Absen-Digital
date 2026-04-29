@@ -1,546 +1,480 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sistem Presensi SMPN 4 MONTA</title>
-    
-    <!-- PWA Meta -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#4f46e5">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Presensi SMPN 4 MONTA</title>
+    
+    <!-- Meta untuk Progressive Web App -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Presensi SMPN4">
+    <meta name="theme-color" content="#4f46e5">
 
-    <!-- Fonts & Scripts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    <!-- Favicon & Icons (Menggunakan path relatif sesuai struktur folder Anda) -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-512.png">
 
-    <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #f8fafc; 
-            min-height: 100vh; 
-            margin: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
-        .glass-card { background: rgba(255, 255, 255, 1); border: 1px solid #f1f5f9; }
-        .admin-sidebar { background: #0f172a; }
-        .btn-primary { background: #4f46e5; transition: all 0.2s ease; }
-        .btn-primary:active { transform: scale(0.98); }
-        
-        /* Navigasi Bawah untuk HP */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            padding: 0.75rem;
-            border-top: 1px solid #e2e8f0;
-            z-index: 100;
-        }
+    <!-- Manifest File -->
+    <link rel="manifest" href="manifest.json">
 
-        .pulse { animation: pulse-animation 2s infinite; }
-        @keyframes pulse-animation {
-            0% { box-shadow: 0 0 0 0px rgba(79, 70, 229, 0.4); }
-            100% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-        }
+    <!-- Stylesheets -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-        .active-tab { background: #4f46e5 !important; color: white !important; }
-    </style>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0f2f5; min-height: 100vh; margin: 0; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
+        .admin-sidebar { background: #0f172a; }
+        .btn-primary { background: #4f46e5; transition: all 0.3s ease; }
+        .btn-primary:hover { background: #4338ca; transform: translateY(-1px); }
+        .pulse { animation: pulse-animation 2s infinite; }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0px rgba(79, 70, 229, 0.4); }
+            100% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+        }
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
-<body class="pb-20 lg:pb-0">
+<body>
 
-    <!-- LOGIN SECTION -->
-    <div id="auth-section" class="fixed inset-0 flex items-center justify-center bg-white z-[500] px-6">
-        <div class="w-full max-w-sm text-center">
-            <div class="mb-10">
-                <div class="w-20 h-20 bg-indigo-50 rounded-3xl mx-auto flex items-center justify-center mb-4 border border-indigo-100">
-                    <img src="logo.png" alt="Logo" class="w-12 h-12 object-contain" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2602/2602414.png'">
-                </div>
-                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">SMPN 4 MONTA</h1>
-                <p class="text-slate-500 mt-1 font-medium text-sm">Sistem Presensi Digital</p>
-            </div>
-            <div class="space-y-4 text-left">
-                <input type="text" id="login-user" placeholder="Username" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-semibold">
-                <input type="password" id="login-pass" placeholder="Password" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:border-indigo-500 transition-all font-semibold">
-                <button onclick="handleLogin()" id="btn-login" class="w-full btn-primary text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-200 mt-2">Masuk Ke Sistem</button>
-            </div>
-        </div>
-    </div>
+    <!-- LOGIN SECTION -->
+    <div id="auth-section" class="fixed inset-0 flex items-center justify-center bg-slate-100 z-[500] px-4">
+        <div class="glass-card p-8 md:p-12 rounded-[2.5rem] shadow-2xl w-full max-w-md text-center fade-in">
+            <div class="mb-8">
+                <!-- LOGO MENGGUNAKAN FILE LOKAL -->
+                <div class="w-24 h-24 bg-white rounded-3xl mx-auto flex items-center justify-center shadow-xl mb-4 border border-slate-100 overflow-hidden p-2">
+                    <img src="logo.png" alt="Logo SMPN 4 MONTA" class="w-full h-full object-contain" onerror="this.src='icon-512.png'">
+                </div>
+                <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight uppercase">SMP Negeri 4 Monta</h1>
+                <p class="text-slate-500 mt-2 font-medium text-sm">Sistem Presensi Kehadiran Guru</p>
+            </div>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-1 block">Username</label>
+                    <input type="text" id="login-user" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-400 uppercase ml-2 mb-1 block">Password</label>
+                    <input type="password" id="login-pass" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all font-medium">
+                </div>
+                <button onclick="handleLogin()" id="btn-login" class="w-full btn-primary text-white font-bold py-4 rounded-2xl shadow-lg mt-4">Masuk</button>
+                <div id="auth-msg" class="text-center text-xs font-bold text-rose-500 hidden pt-2 uppercase"></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- MAIN APP SECTION -->
-    <div id="app-section" class="hidden">
-        <!-- Dashboard Container -->
-        <div class="flex flex-col lg:flex-row min-h-screen">
-            
-            <!-- SIDEBAR (Hanya di PC) -->
-            <aside id="admin-sidebar" class="hidden lg:flex flex-col w-72 admin-sidebar p-8 text-white sticky top-0 h-screen">
-                <div class="mb-10 flex items-center gap-3">
-                    <img src="logo.png" alt="Logo" class="w-8 h-8" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2602/2602414.png'">
-                    <h2 class="text-lg font-black tracking-tighter uppercase">ADMIN PANEL</h2>
-                </div>
-                <nav class="space-y-2 flex-1">
-                    <button onclick="switchMode('monitor')" id="tab-monitor" class="w-full text-left px-5 py-4 rounded-xl font-bold text-sm bg-indigo-600 shadow-lg">Monitoring</button>
-                    <button onclick="switchMode('manage')" id="tab-manage" class="w-full text-left px-5 py-4 rounded-xl font-bold text-sm hover:bg-slate-800 text-slate-400">Registrasi Guru</button>
-                    <button onclick="switchMode('archive')" id="tab-archive" class="w-full text-left px-5 py-4 rounded-xl font-bold text-sm hover:bg-slate-800 text-slate-400">Database Sheets</button>
-                </nav>
-                <div class="mt-auto pt-6 border-t border-slate-800 space-y-3">
-                    <button onclick="exportToPDF()" class="w-full py-3 bg-white/10 rounded-xl text-xs font-bold hover:bg-white/20">Download PDF</button>
-                    <button onclick="handleLogout()" class="w-full py-3 text-rose-400 text-xs font-bold">Keluar</button>
-                </div>
-            </aside>
+    <!-- MAIN APP SECTION -->
+    <div id="app-section" class="hidden p-4 md:p-8 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row gap-6 min-h-[90vh]">
+            
+            <!-- Sidebar (Admin) -->
+            <aside id="admin-sidebar" class="hidden lg:flex flex-col w-72 admin-sidebar rounded-[2.5rem] p-8 text-white shadow-2xl">
+                <div class="mb-10 text-center">
+                    <img src="logo.png" alt="Logo" class="w-12 h-12 mx-auto mb-3" onerror="this.src='icon-192.png'">
+                    <h2 class="text-lg font-black tracking-tighter leading-none uppercase">SMPN 4 MONTA</h2>
+                    <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-[0.2em] mt-2 block">Panel Administrasi</span>
+                </div>
+                <nav class="space-y-2 flex-1">
+                    <button onclick="switchMode('monitor')" id="tab-monitor" class="w-full text-left px-6 py-4 rounded-2xl font-bold text-sm bg-indigo-600 shadow-lg transition-all">Monitoring</button>
+                    <button onclick="switchMode('manage')" id="tab-manage" class="w-full text-left px-6 py-4 rounded-2xl font-bold text-sm hover:bg-slate-800 text-slate-400 transition-all">Daftar Guru</button>
+                    <button onclick="switchMode('archive')" id="tab-archive" class="w-full text-left px-6 py-4 rounded-2xl font-bold text-sm hover:bg-slate-800 text-slate-400 transition-all">Rekap Sheets</button>
+                </nav>
+                <div class="mt-auto pt-6 border-t border-slate-800 space-y-4">
+                    <button onclick="exportToPDF()" class="w-full bg-rose-600/20 text-rose-400 border border-rose-600/30 font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-rose-600 hover:text-white transition-all">
+                        Download PDF
+                    </button>
+                    <button onclick="handleLogout()" class="w-full text-slate-500 font-bold text-xs hover:text-white flex items-center justify-center gap-2">Keluar</button>
+                </div>
+            </aside>
 
-            <!-- MAIN CONTENT AREA -->
-            <main class="flex-1 p-4 lg:p-10 lg:max-w-6xl mx-auto w-full">
-                
-                <!-- Top Header -->
-                <header class="flex items-center justify-between mb-8 bg-white p-5 lg:p-0 rounded-3xl lg:bg-transparent lg:rounded-none border lg:border-0 border-slate-100">
-                    <div class="flex items-center gap-4">
-                        <div id="user-avatar" class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-xl">?</div>
-                        <div>
-                            <h3 id="display-user" class="font-bold text-slate-800 text-lg leading-none">Memuat...</h3>
-                            <span id="role-badge" class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-1 block">Guru</span>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p id="live-clock" class="text-xl lg:text-2xl font-black text-slate-900 leading-none">00:00</p>
-                        <p id="live-date" class="text-[10px] text-slate-400 font-bold uppercase mt-1">...</p>
-                    </div>
-                </header>
+            <!-- Main Content Area -->
+            <main class="flex-1 space-y-6">
+                <!-- Header Card -->
+                <header class="glass-card px-8 py-6 rounded-[2rem] flex flex-wrap items-center justify-between shadow-sm gap-4">
+                    <div class="flex items-center gap-4">
+                        <div id="user-avatar" class="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-indigo-200">?</div>
+                        <div>
+                            <h3 id="display-user" class="font-black text-slate-800 text-xl leading-none">Memuat...</h3>
+                            <span id="role-badge" class="text-[10px] font-bold text-indigo-500 uppercase tracking-widest mt-1 block">Guru Aktif</span>
+                        </div>
+                    </div>
+                    <div class="text-right flex items-center gap-6">
+                        <div class="hidden sm:block">
+                            <p id="live-clock" class="text-3xl font-black text-slate-900 leading-none">00:00:00</p>
+                            <p id="live-date" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">...</p>
+                        </div>
+                    </div>
+                </header>
 
-                <!-- MONITORING SECTION (ADMIN) -->
-                <div id="section-monitor" class="hidden space-y-6">
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div class="glass-card p-5 rounded-3xl">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Hadir</p>
-                            <h4 id="stat-hadir" class="text-3xl font-black text-indigo-600">0</h4>
-                        </div>
-                        <div class="glass-card p-5 rounded-3xl">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Izin/Sakit</p>
-                            <h4 id="stat-izin-sakit" class="text-3xl font-black text-amber-500">0</h4>
-                        </div>
-                        <div class="glass-card p-5 rounded-3xl bg-slate-900 lg:bg-white">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Total</p>
-                            <h4 id="stat-total" class="text-3xl font-black text-white lg:text-slate-900">0</h4>
-                        </div>
-                        <div class="hidden lg:block glass-card p-5 rounded-3xl">
-                            <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Update</p>
-                            <h4 class="text-sm font-bold text-slate-800 mt-2">Otomatis</h4>
-                        </div>
-                    </div>
+                <!-- MONITORING SECTION -->
+                <div id="section-monitor" class="hidden space-y-6 fade-in">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass-card p-6 rounded-3xl bg-emerald-50 border-emerald-100">
+                            <p class="text-[10px] font-black text-emerald-600 uppercase mb-1">Hadir</p>
+                            <h4 id="stat-hadir" class="text-4xl font-black text-emerald-700">0</h4>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl bg-amber-50 border-amber-100">
+                            <p class="text-[10px] font-black text-amber-600 uppercase mb-1">Izin</p>
+                            <h4 id="stat-izin" class="text-4xl font-black text-amber-700">0</h4>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl bg-rose-50 border-rose-100">
+                            <p class="text-[10px] font-black text-rose-600 uppercase mb-1">Sakit</p>
+                            <h4 id="stat-sakit" class="text-4xl font-black text-rose-700">0</h4>
+                        </div>
+                        <div class="glass-card p-6 rounded-3xl bg-slate-100 border-slate-200">
+                            <p class="text-[10px] font-black text-slate-500 uppercase mb-1">Total</p>
+                            <h4 id="stat-total" class="text-4xl font-black text-slate-800">0</h4>
+                        </div>
+                    </div>
 
-                    <div class="glass-card rounded-3xl overflow-hidden shadow-sm">
-                        <div class="p-5 border-b flex justify-between items-center px-6">
-                            <h4 class="font-bold text-sm text-slate-800 uppercase tracking-tight flex items-center gap-2">
-                                <span class="w-2 h-2 bg-emerald-500 rounded-full pulse"></span> Aktivitas Terbaru
-                            </h4>
-                            <input type="text" id="search-monitor" oninput="filterMonitor()" placeholder="Cari..." class="text-xs px-4 py-2 rounded-xl bg-slate-50 border-0 outline-none w-32 lg:w-auto">
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    <tr>
-                                        <th class="px-6 py-4">Waktu</th>
-                                        <th class="px-6 py-4">Nama</th>
-                                        <th class="px-6 py-4 text-center">Status</th>
-                                        <th class="px-6 py-4 hidden lg:table-cell">Catatan</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="monitor-table-body" class="divide-y divide-slate-50 text-xs"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                    <div class="glass-card rounded-[2.5rem] overflow-hidden shadow-xl bg-white border-0">
+                        <div class="p-6 border-b flex justify-between items-center px-8 bg-slate-50/50">
+                            <h4 class="font-black text-slate-800 flex items-center gap-2 uppercase text-xs tracking-widest">
+                                <span class="w-2 h-2 bg-emerald-500 rounded-full pulse"></span>
+                                Aktivitas Kehadiran Realtime
+                            </h4>
+                            <input type="text" id="search-monitor" oninput="filterMonitor()" placeholder="Cari nama..." class="text-xs px-4 py-2 rounded-xl border border-slate-200 outline-none">
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    <tr>
+                                        <th class="px-8 py-5">Waktu</th>
+                                        <th class="px-8 py-5">Nama Guru</th>
+                                        <th class="px-8 py-5 text-center">Status</th>
+                                        <th class="px-8 py-5">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monitor-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-                <!-- GURU SECTION (ABSEN) -->
-                <div id="section-guru" class="hidden space-y-6">
-                    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
-                        <!-- Form -->
-                        <div class="lg:col-span-7 space-y-6">
-                            <div class="glass-card p-6 lg:p-8 rounded-[2rem] shadow-sm">
-                                <h3 class="text-lg font-black text-slate-800 mb-6 uppercase">Presensi Hari Ini</h3>
-                                <form id="absensi-form" class="space-y-6">
-                                    <div>
-                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Pilih Status</label>
-                                        <div class="grid grid-cols-3 gap-3">
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="status" value="Hadir" checked class="peer hidden">
-                                                <div class="py-4 border-2 border-slate-100 rounded-2xl text-center font-bold text-slate-400 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 peer-checked:text-indigo-600 transition-all text-xs">HADIR</div>
-                                            </label>
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="status" value="Izin" class="peer hidden">
-                                                <div class="py-4 border-2 border-slate-100 rounded-2xl text-center font-bold text-slate-400 peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-500 transition-all text-xs">IZIN</div>
-                                            </label>
-                                            <label class="cursor-pointer">
-                                                <input type="radio" name="status" value="Sakit" class="peer hidden">
-                                                <div class="py-4 border-2 border-slate-100 rounded-2xl text-center font-bold text-slate-400 peer-checked:border-rose-500 peer-checked:bg-rose-50 peer-checked:text-rose-500 transition-all text-xs">SAKIT</div>
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Keterangan (Opsional)</label>
-                                        <textarea name="catatan" id="form-catatan" placeholder="Tulis catatan jika izin/sakit..." class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl outline-none h-28 text-sm font-medium resize-none focus:border-indigo-500 transition-all"></textarea>
-                                    </div>
-                                    <button type="submit" id="btn-absen" class="w-full btn-primary text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-100 uppercase tracking-wider text-sm">Kirim Kehadiran</button>
-                                </form>
-                            </div>
-                        </div>
+                <!-- GURU SECTION -->
+                <div id="section-guru" class="hidden space-y-6 fade-in pb-10">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="glass-card p-8 md:p-10 rounded-[3rem] shadow-xl">
+                            <h3 class="text-xl font-black text-slate-800 mb-6 uppercase tracking-tight">Formulir Presensi</h3>
+                            <form id="absensi-form" class="space-y-6">
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Status Kehadiran</label>
+                                    <div class="grid grid-cols-3 gap-3">
+                                        <label class="cursor-pointer group">
+                                            <input type="radio" name="status" value="Hadir" checked class="peer hidden">
+                                            <div class="py-4 border-2 border-slate-100 rounded-2xl text-center font-bold text-slate-400 peer-checked:border-indigo-600 peer-checked:bg-indigo-50 peer-checked:text-indigo-600 transition-all text-xs uppercase">Hadir</div>
+                                        </label>
+                                        <label class="cursor-pointer group">
+                                            <input type="radio" name="status" value="Izin" class="peer hidden">
+                                            <div class="py-4 border-2 border-slate-100 rounded-2xl text-center font-bold text-slate-400 peer-checked:border-amber-500 peer-checked:bg-amber-50 peer-checked:text-amber-500 transition-all text-xs uppercase">Izin</div>
+                                        </label>
+                                        <label class="cursor-pointer group">
+                                            <input type="radio" name="status" value="Sakit" class="peer hidden">
+                                            <div class="py-4 border-2 border-slate-100 rounded-2xl text-center font-bold text-slate-400 peer-checked:border-rose-500 peer-checked:bg-rose-50 peer-checked:text-rose-500 transition-all text-xs uppercase">Sakit</div>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 block">Alasan / Catatan</label>
+                                    <textarea name="catatan" id="form-catatan" placeholder="Opsional (Wajib jika Izin/Sakit)..." class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none h-24 font-medium transition-all resize-none text-slate-700"></textarea>
+                                </div>
+                                <button type="submit" id="btn-absen" class="w-full btn-primary text-white font-black py-5 rounded-2xl shadow-xl flex items-center justify-center gap-3">
+                                    <span>Kirim Kehadiran</span>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="glass-card p-8 md:p-10 rounded-[3rem] shadow-xl flex flex-col">
+                            <h3 class="text-xl font-black text-slate-800 mb-6 uppercase tracking-tight">Riwayat Hari Ini</h3>
+                            <div id="guru-history" class="space-y-3 overflow-y-auto max-h-[400px] flex-1">
+                                <p class="text-slate-400 text-sm italic py-10 text-center">Belum ada absen.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Riwayat Singkat (Hanya Muncul di Samping di PC) -->
-                        <div class="hidden lg:block lg:col-span-5">
-                            <div class="glass-card p-8 rounded-[2rem] h-full flex flex-col">
-                                <h3 class="text-lg font-black text-slate-800 mb-6 uppercase">Riwayat Saya</h3>
-                                <div id="guru-history-pc" class="space-y-4 overflow-y-auto max-h-[400px]">
-                                     <p class="text-slate-400 text-sm italic">Memuat riwayat...</p>
-                                </div>
-                            </div>
-                        </div>
+                <!-- MANAGE SECTION -->
+                <div id="section-manage" class="hidden max-w-md mx-auto glass-card p-10 rounded-[3rem] shadow-xl fade-in">
+                    <h3 class="text-xl font-black text-slate-800 mb-8 text-center uppercase tracking-widest">Registrasi Guru Baru</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="reg-user" placeholder="Nama Lengkap" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none">
+                        <input type="password" id="reg-pass" placeholder="Password Akun" class="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none">
+                        <button onclick="handleRegister()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-lg hover:bg-black transition-all">Daftarkan Sekarang</button>
+                    </div>
+                </div>
 
-                        <!-- Riwayat HP (Muncul di bawah di HP) -->
-                        <div class="lg:hidden mt-6 pb-20">
-                            <h3 class="text-sm font-black text-slate-800 mb-4 uppercase ml-2">Riwayat Terbaru</h3>
-                            <div id="guru-history-mobile" class="space-y-3"></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- ARCHIVE SECTION -->
+                <div id="section-archive" class="hidden glass-card rounded-[2.5rem] overflow-hidden h-[600px] flex flex-col shadow-2xl border-0 fade-in">
+                    <div class="p-5 bg-white border-b flex justify-between items-center px-8">
+                        <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Database Sheets</span>
+                        <a href="#" id="sheets-link" target="_blank" class="text-[10px] font-black text-indigo-600 hover:underline uppercase tracking-tighter">Buka Editor</a>
+                    </div>
+                    <iframe id="sheets-iframe" class="flex-1 w-full" src="about:blank"></iframe>
+                </div>
+            </main>
+        </div>
+    </div>
 
-                <!-- MANAGE SECTION -->
-                <div id="section-manage" class="hidden max-w-lg mx-auto glass-card p-8 rounded-[2.5rem] shadow-sm">
-                    <h3 class="text-lg font-black text-slate-800 mb-8 text-center uppercase tracking-widest">Tambah Guru Baru</h3>
-                    <div class="space-y-4">
-                        <input type="text" id="reg-user" placeholder="Nama Lengkap" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-semibold">
-                        <input type="password" id="reg-pass" placeholder="Password Akun" class="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none font-semibold">
-                        <button onclick="handleRegister()" class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-lg mt-2">Daftarkan Sekarang</button>
-                    </div>
-                </div>
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-2xl text-white font-black text-sm hidden z-[600] shadow-2xl flex items-center gap-3 transition-all"></div>
 
-                <!-- ARCHIVE SECTION -->
-                <div id="section-archive" class="hidden glass-card rounded-3xl overflow-hidden h-[500px] lg:h-[700px] flex flex-col shadow-sm border-0">
-                    <div class="p-4 bg-slate-50 border-b flex justify-between items-center px-6">
-                        <span class="text-[10px] font-black text-slate-500 uppercase">Direct Google Sheets</span>
-                        <a href="#" id="sheets-link" target="_blank" class="text-[10px] font-bold text-indigo-600 uppercase">Buka Fullscreen</a>
-                    </div>
-                    <iframe id="sheets-iframe" class="flex-1 w-full" src="about:blank"></iframe>
-                </div>
-            </main>
-        </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        <!-- BOTTOM NAV (Hanya di HP) -->
-        <nav id="mobile-nav" class="lg:hidden bottom-nav">
-            <!-- Isi nav akan berubah sesuai role melalui JS -->
-        </nav>
-    </div>
+        // Konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzq3aqYZKNOv9JYDDt82xaOKARm-_uCEI",
+            authDomain: "absen-guru-29853.firebaseapp.com",
+            projectId: "absen-guru-29853",
+            storageBucket: "absen-guru-29853.firebasestorage.app",
+            messagingSenderId: "970880503737",
+            appId: "1:970880503737:web:47bca4754eb0cfb9caf068"
+        };
 
-    <!-- TOAST -->
-    <div id="toast" class="fixed top-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold text-xs hidden z-[600] shadow-2xl flex items-center gap-3 transition-all"></div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = 'presensi-guru-v2';
+        const publicCollectionPath = ['artifacts', appId, 'public', 'data', 'absensi'];
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwASTiI47TogYU3XdIFqjtq0MxZXle6ySkMarXBf6GUWKMewZPPGtkNIrDj51r_Xxum/exec";
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        let session = {
+            user: localStorage.getItem('guru_user'),
+            role: localStorage.getItem('guru_role'),
+            pass: localStorage.getItem('guru_pass')
+        };
+        let monitorData = [];
 
-        // Firebase Config
-        const firebaseConfig = {
-            apiKey: "AIzaSyDzq3aqYZKNOv9JYDDt82xaOKARm-_uCEI",
-            authDomain: "absen-guru-29853.firebaseapp.com",
-            projectId: "absen-guru-29853",
-            storageBucket: "absen-guru-29853.firebasestorage.app",
-            messagingSenderId: "970880503737",
-            appId: "1:970880503737:web:47bca4754eb0cfb9caf068"
-        };
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (session.user && user) showApp();
+        });
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = 'presensi-guru-v2';
-        const publicPath = ['artifacts', appId, 'public', 'data', 'absensi'];
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwASTiI47TogYU3XdIFqjtq0MxZXle6ySkMarXBf6GUWKMewZPPGtkNIrDj51r_Xxum/exec";
+        const initAuth = async () => {
+            try { await signInAnonymously(auth); } catch (e) { console.error(e); }
+        };
+        initAuth();
 
-        let session = {
-            user: localStorage.getItem('guru_user'),
-            role: localStorage.getItem('guru_role'),
-            pass: localStorage.getItem('guru_pass')
-        };
-        let monitorData = [];
+        // Clock logic
+        setInterval(() => {
+            const now = new Date();
+            const clock = document.getElementById('live-clock');
+            const date = document.getElementById('live-date');
+            if(clock) clock.innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+            if(date) date.innerText = now.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        }, 1000);
 
-        // Auth Init
-        onAuthStateChanged(auth, (user) => { if (session.user && user) showApp(); });
-        const initAuth = async () => { try { await signInAnonymously(auth); } catch (e) {} };
-        initAuth();
+        // Login handler
+        window.handleLogin = async () => {
+            const user = document.getElementById('login-user').value.trim();
+            const pass = document.getElementById('login-pass').value.trim();
+            if(!user || !pass) return showToast("Lengkapi form!", "bg-rose-500");
+            
+            const btn = document.getElementById('btn-login');
+            btn.innerText = "Mengecek...";
+            
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
+                const data = await res.json();
+                if(data.status === "success") {
+                    session = { user: data.username, role: data.role, pass: pass };
+                    localStorage.setItem('guru_user', data.username);
+                    localStorage.setItem('guru_role', data.role);
+                    localStorage.setItem('guru_pass', pass);
+                    showApp();
+                } else {
+                    showToast("Login Gagal!", "bg-rose-500");
+                }
+            } catch (e) { showToast("Error Server!", "bg-rose-500"); }
+            finally { btn.innerText = "Masuk"; }
+        };
 
-        // Clock
-        setInterval(() => {
-            const now = new Date();
-            const clock = document.getElementById('live-clock');
-            const date = document.getElementById('live-date');
-            if(clock) clock.innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
-            if(date) date.innerText = now.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
-        }, 1000);
+        function showApp() {
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('app-section').classList.remove('hidden');
+            document.getElementById('display-user').innerText = session.user;
+            document.getElementById('role-badge').innerText = session.role === 'Admin' ? 'Administrator' : 'Guru Aktif';
+            document.getElementById('user-avatar').innerText = (session.user[0] || '?').toUpperCase();
+            
+            if (session.role === "Admin") {
+                document.getElementById('admin-sidebar').style.display = 'flex';
+                switchMode('monitor');
+                listenRealtime();
+            } else {
+                document.getElementById('admin-sidebar').style.display = 'none';
+                switchMode('guru');
+                listenGuruHistory();
+            }
+        }
 
-        // Login
-        window.handleLogin = async () => {
-            const user = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-            if(!user || !pass) return showToast("Lengkapi form!", "bg-rose-500");
-            
-            const btn = document.getElementById('btn-login');
-            btn.innerText = "Memproses...";
-            btn.disabled = true;
-            
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=login&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}`);
-                const data = await res.json();
-                if(data.status === "success") {
-                    session = { user: data.username, role: data.role, pass: pass };
-                    localStorage.setItem('guru_user', data.username);
-                    localStorage.setItem('guru_role', data.role);
-                    localStorage.setItem('guru_pass', pass);
-                    showApp();
-                } else {
-                    showToast("User/Password Salah!", "bg-rose-500");
-                }
-            } catch (e) { showToast("Gagal terhubung server!", "bg-rose-500"); }
-            finally { 
-                btn.innerText = "Masuk Ke Sistem"; 
-                btn.disabled = false;
-            }
-        };
+        window.switchMode = (mode) => {
+            ['monitor', 'manage', 'archive', 'guru'].forEach(s => {
+                const el = document.getElementById(`section-${s}`);
+                if(el) el.classList.add('hidden');
+            });
+            const target = document.getElementById(`section-${mode}`);
+            if(target) target.classList.remove('hidden');
+            
+            if (mode === 'archive') {
+                const url = "https://docs.google.com/spreadsheets/d/1F9KmOe4cKFCvIbCBuaP0gWTHjjD_2OZD_mJ_JdvHOlU/preview";
+                document.getElementById('sheets-iframe').src = url;
+                document.getElementById('sheets-link').href = url.replace('/preview', '/edit');
+            }
 
-        function showApp() {
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('app-section').classList.remove('hidden');
-            document.getElementById('display-user').innerText = session.user;
-            document.getElementById('role-badge').innerText = session.role === 'Admin' ? 'Administrator' : 'Guru Aktif';
-            document.getElementById('user-avatar').innerText = (session.user[0] || '?').toUpperCase();
-            
-            setupMobileNav();
-            
-            if (session.role === "Admin") {
-                document.getElementById('admin-sidebar').classList.remove('hidden');
-                switchMode('monitor');
-                listenRealtime();
-            } else {
-                document.getElementById('admin-sidebar').classList.add('hidden');
-                switchMode('guru');
-                listenGuruHistory();
-            }
-        }
+            if (session.role === "Admin") {
+                document.querySelectorAll('aside nav button').forEach(b => {
+                    b.className = "w-full text-left px-6 py-4 rounded-2xl font-bold text-sm hover:bg-slate-800 text-slate-400 transition-all";
+                });
+                const activeBtn = document.getElementById(`tab-${mode}`);
+                if(activeBtn) activeBtn.className = "w-full text-left px-6 py-4 rounded-2xl font-bold text-sm bg-indigo-600 shadow-lg transition-all";
+            }
+        };
 
-        function setupMobileNav() {
-            const nav = document.getElementById('mobile-nav');
-            if (session.role === "Admin") {
-                nav.innerHTML = `
-                    <button onclick="switchMode('monitor')" class="flex flex-col items-center gap-1 text-slate-400">
-                        <span class="text-[10px] font-bold">Monitor</span>
-                    </button>
-                    <button onclick="switchMode('manage')" class="flex flex-col items-center gap-1 text-slate-400">
-                        <span class="text-[10px] font-bold">Register</span>
-                    </button>
-                    <button onclick="handleLogout()" class="flex flex-col items-center gap-1 text-rose-400">
-                        <span class="text-[10px] font-bold">Keluar</span>
-                    </button>
-                `;
-            } else {
-                nav.innerHTML = `
-                    <button onclick="switchMode('guru')" class="flex flex-col items-center gap-1 text-indigo-600">
-                        <div class="w-10 h-10 bg-indigo-50 rounded-full flex items-center justify-center">A</div>
-                        <span class="text-[10px] font-bold uppercase">Absen</span>
-                    </button>
-                    <button onclick="handleLogout()" class="flex flex-col items-center gap-1 text-slate-400">
-                        <div class="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-rose-500">X</div>
-                        <span class="text-[10px] font-bold uppercase">Keluar</span>
-                    </button>
-                `;
-            }
-        }
+        function listenRealtime() {
+            onSnapshot(collection(db, ...publicCollectionPath), (snap) => {
+                monitorData = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.ts_raw - a.ts_raw);
+                renderMonitorTable(monitorData);
+            });
+        }
 
-        window.switchMode = (mode) => {
-            const sections = ['monitor', 'manage', 'archive', 'guru'];
-            sections.forEach(s => {
-                const el = document.getElementById(`section-${s}`);
-                if(el) el.classList.add('hidden');
-            });
-            const target = document.getElementById(`section-${mode}`);
-            if(target) target.classList.remove('hidden');
-            
-            // PC Tab Active State
-            if (session.role === "Admin") {
-                sections.forEach(s => {
-                    const btn = document.getElementById(`tab-${s}`);
-                    if(btn) btn.className = "w-full text-left px-5 py-4 rounded-xl font-bold text-sm hover:bg-slate-800 text-slate-400";
-                });
-                const activeBtn = document.getElementById(`tab-${mode}`);
-                if(activeBtn) activeBtn.className = "w-full text-left px-5 py-4 rounded-xl font-bold text-sm bg-indigo-600 shadow-lg";
-            }
+        function renderMonitorTable(data) {
+            const tbody = document.getElementById('monitor-table-body');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            let h = 0, i = 0, s = 0;
+            
+            data.forEach(item => {
+                if(item.status === 'Hadir') h++;
+                else if(item.status === 'Izin') i++;
+                else if(item.status === 'Sakit') s++;
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-8 py-5 text-[11px] font-bold text-slate-400 font-mono">${item.waktu || '--:--'}</td>
+                        <td class="px-8 py-5 font-black text-slate-800 uppercase">${item.nama}</td>
+                        <td class="px-8 py-5 text-center">
+                            <span class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase ${getStatusClass(item.status)}">${item.status}</span>
+                        </td>
+                        <td class="px-8 py-5 text-slate-500 italic text-xs">${item.catatan || '-'}</td>
+                    </tr>`;
+            });
+            
+            if(document.getElementById('stat-hadir')) document.getElementById('stat-hadir').innerText = h;
+            if(document.getElementById('stat-izin')) document.getElementById('stat-izin').innerText = i;
+            if(document.getElementById('stat-sakit')) document.getElementById('stat-sakit').innerText = s;
+            if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = data.length;
+        }
 
-            if (mode === 'archive') {
-                const url = "https://docs.google.com/spreadsheets/d/1F9KmOe4cKFCvIbCBuaP0gWTHjjD_2OZD_mJ_JdvHOlU/preview";
-                document.getElementById('sheets-iframe').src = url;
-                document.getElementById('sheets-link').href = url.replace('/preview', '/edit');
-            }
-        };
+        function listenGuruHistory() {
+            onSnapshot(collection(db, ...publicCollectionPath), (snap) => {
+                const data = snap.docs.map(d => d.data())
+                    .filter(d => d.nama === session.user)
+                    .sort((a,b) => b.ts_raw - a.ts_raw);
+                
+                const container = document.getElementById('guru-history');
+                if(!container) return;
+                
+                if(data.length === 0) {
+                    container.innerHTML = '<p class="text-slate-400 text-sm italic py-10 text-center">Belum ada absen.</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(item => `
+                    <div class="p-5 border border-slate-100 rounded-3xl bg-slate-50/50 flex justify-between items-center">
+                        <div>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">${item.waktu}</p>
+                            <h4 class="font-black text-slate-800 uppercase text-sm">${item.status}</h4>
+                            <p class="text-xs text-slate-500 italic mt-1">${item.catatan || '-'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            });
+        }
 
-        function listenRealtime() {
-            onSnapshot(collection(db, ...publicPath), (snap) => {
-                monitorData = snap.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => b.ts_raw - a.ts_raw);
-                renderMonitorTable(monitorData);
-            }, (err) => console.log(err));
-        }
+        document.getElementById('absensi-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-absen');
+            const formData = new FormData(e.target);
+            const status = formData.get('status');
+            const catatan = formData.get('catatan').trim();
+            const now = new Date();
+            
+            if((status === 'Izin' || status === 'Sakit') && !catatan) return showToast("Keterangan wajib diisi!", "bg-rose-500");
 
-        function renderMonitorTable(data) {
-            const tbody = document.getElementById('monitor-table-body');
-            if(!tbody) return;
-            tbody.innerHTML = '';
-            let hadir = 0, izinSakit = 0;
-            
-            data.forEach(item => {
-                if(item.status === 'Hadir') hadir++;
-                else izinSakit++;
-                
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4 font-mono font-bold text-slate-400">${item.waktu}</td>
-                        <td class="px-6 py-4 font-bold text-slate-800 uppercase">${item.nama}</td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="px-3 py-1 rounded-lg text-[9px] font-black uppercase ${getStatusClass(item.status)}">${item.status}</span>
-                        </td>
-                        <td class="px-6 py-4 text-slate-500 italic hidden lg:table-cell">${item.catatan || '-'}</td>
-                    </tr>`;
-            });
-            
-            if(document.getElementById('stat-hadir')) document.getElementById('stat-hadir').innerText = hadir;
-            if(document.getElementById('stat-izin-sakit')) document.getElementById('stat-izin-sakit').innerText = izinSakit;
-            if(document.getElementById('stat-total')) document.getElementById('stat-total').innerText = data.length;
-        }
+            btn.disabled = true;
+            const fullStamp = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.toLocaleTimeString('en-US', { hour12: false })}`;
+            
+            try {
+                await addDoc(collection(db, ...publicCollectionPath), {
+                    nama: session.user,
+                    status: status,
+                    catatan: catatan || "-",
+                    waktu: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':'),
+                    full_stamp: fullStamp,
+                    ts_raw: now.getTime(),
+                    created_at: serverTimestamp()
+                });
 
-        function listenGuruHistory() {
-            onSnapshot(collection(db, ...publicPath), (snap) => {
-                const data = snap.docs.map(d => d.data())
-                    .filter(d => d.nama === session.user)
-                    .sort((a,b) => b.ts_raw - a.ts_raw);
-                
-                const render = (containerId) => {
-                    const container = document.getElementById(containerId);
-                    if(!container) return;
-                    if(data.length === 0) {
-                        container.innerHTML = '<p class="text-slate-400 text-xs italic">Belum ada catatan.</p>';
-                        return;
-                    }
-                    container.innerHTML = data.slice(0, 5).map(item => `
-                        <div class="p-4 border border-slate-100 rounded-2xl bg-white flex justify-between items-center shadow-sm">
-                            <div>
-                                <p class="text-[9px] font-black text-indigo-400 uppercase tracking-tighter">${item.waktu}</p>
-                                <h4 class="font-bold text-slate-800 text-sm">${item.status}</h4>
-                                <p class="text-[10px] text-slate-400 italic">${item.catatan || '-'}</p>
-                            </div>
-                            <div class="w-2 h-2 rounded-full ${item.status === 'Hadir' ? 'bg-emerald-400' : 'bg-amber-400'}"></div>
-                        </div>
-                    `).join('');
-                };
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify({ action: "saveData", timestamp: fullStamp, user: session.user, role: session.role, detail: `Status: ${status} | Catatan: ${catatan}` })
+                });
 
-                render('guru-history-pc');
-                render('guru-history-mobile');
-            }, (err) => console.log(err));
-        }
+                showToast("Berhasil terkirim!", "bg-indigo-600");
+                e.target.reset();
+            } catch (err) { showToast("Gagal mengirim!", "bg-rose-500"); }
+            finally { btn.disabled = false; }
+        };
 
-        document.getElementById('absensi-form').onsubmit = async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-absen');
-            const formData = new FormData(e.target);
-            const status = formData.get('status');
-            const catatan = formData.get('catatan').trim();
-            const now = new Date();
-            
-            if((status === 'Izin' || status === 'Sakit') && !catatan) return showToast("Wajib isi catatan!", "bg-rose-500");
+        window.exportToPDF = () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("SMP NEGERI 4 MONTA - REKAP PRESENSI", 105, 20, { align: "center" });
+            const rows = monitorData.map(item => [item.waktu, item.nama, item.status, item.catatan || "-"]);
+            doc.autoTable({ startY: 30, head: [['Waktu', 'Nama', 'Status', 'Catatan']], body: rows });
+            doc.save("Laporan_Presensi.pdf");
+        };
 
-            btn.disabled = true;
-            btn.innerText = "Mengirim...";
-            
-            try {
-                const stamp = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }).replace('.', ':');
-                const fullDate = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.toLocaleTimeString('en-US', { hour12: false })}`;
-                
-                await addDoc(collection(db, ...publicPath), {
-                    nama: session.user,
-                    status: status,
-                    catatan: catatan || "-",
-                    waktu: stamp,
-                    full_stamp: fullDate,
-                    ts_raw: now.getTime(),
-                    created_at: serverTimestamp()
-                });
+        window.handleRegister = async () => {
+            const user = document.getElementById('reg-user').value.trim();
+            const pass = document.getElementById('reg-pass').value.trim();
+            if(!user || !pass) return showToast("Isi data!", "bg-rose-500");
+            try {
+                const res = await fetch(`${SCRIPT_URL}?action=createUser&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}&role=Guru&adminUser=${session.user}&adminPass=${session.pass}`);
+                const data = await res.json();
+                showToast(data.status === "success" ? "Berhasil!" : data.message, data.status === "success" ? "bg-emerald-600" : "bg-rose-500");
+            } catch (e) { showToast("Gagal!", "bg-rose-500"); }
+        };
 
-                showToast("Presensi Berhasil!", "bg-indigo-600");
-                e.target.reset();
-            } catch (err) { showToast("Gagal menyimpan!", "bg-rose-500"); }
-            finally { 
-                btn.disabled = false; 
-                btn.innerText = "Kirim Kehadiran";
-            }
-        };
+        window.filterMonitor = () => {
+            const val = document.getElementById('search-monitor').value.toLowerCase();
+            renderMonitorTable(monitorData.filter(d => d.nama.toLowerCase().includes(val)));
+        };
 
-        window.exportToPDF = () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            doc.setFontSize(16);
-            doc.text("SMP NEGERI 4 MONTA - REKAP PRESENSI", 105, 20, { align: "center" });
-            doc.autoTable({ 
-                startY: 30, 
-                head: [['Waktu', 'Nama Guru', 'Status', 'Catatan']], 
-                body: monitorData.map(i => [i.waktu, i.nama, i.status, i.catatan || "-"]),
-                theme: 'striped'
-            });
-            doc.save(`Presensi_${new Date().toLocaleDateString()}.pdf`);
-        };
+        function getStatusClass(s) {
+            if(s === 'Hadir') return 'bg-emerald-100 text-emerald-700';
+            if(s === 'Izin') return 'bg-amber-100 text-amber-700';
+            return 'bg-rose-100 text-rose-700';
+        }
 
-        window.handleRegister = async () => {
-            const user = document.getElementById('reg-user').value.trim();
-            const pass = document.getElementById('reg-pass').value.trim();
-            if(!user || !pass) return showToast("Lengkapi data!", "bg-rose-500");
-            try {
-                const res = await fetch(`${SCRIPT_URL}?action=createUser&user=${encodeURIComponent(user)}&pass=${encodeURIComponent(pass)}&role=Guru&adminUser=${session.user}&adminPass=${session.pass}`);
-                const data = await res.json();
-                showToast(data.status === "success" ? "Berhasil didaftarkan!" : "Gagal!", data.status === "success" ? "bg-emerald-600" : "bg-rose-500");
-                if(data.status === "success") {
-                    document.getElementById('reg-user').value = '';
-                    document.getElementById('reg-pass').value = '';
-                }
-            } catch (e) { showToast("Error koneksi!", "bg-rose-500"); }
-        };
-
-        window.filterMonitor = () => {
-            const val = document.getElementById('search-monitor').value.toLowerCase();
-            renderMonitorTable(monitorData.filter(d => d.nama.toLowerCase().includes(val)));
-        };
-
-        function getStatusClass(s) {
-            if(s === 'Hadir') return 'bg-emerald-50 text-emerald-600';
-            if(s === 'Izin') return 'bg-amber-50 text-amber-600';
-            return 'bg-rose-50 text-rose-600';
-        }
-
-        window.handleLogout = () => { 
-            localStorage.clear(); 
-            location.reload(); 
-        };
-        
-        function showToast(msg, bg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.className = `fixed top-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full text-white font-bold text-xs z-[600] shadow-2xl transition-all ${bg}`;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
-        }
-    </script>
+        window.handleLogout = () => { localStorage.clear(); location.reload(); };
+        
+        function showToast(msg, bg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-2xl text-white font-black text-sm z-[600] shadow-2xl transition-all ${bg}`;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+    </script>
 </body>
 </html>
